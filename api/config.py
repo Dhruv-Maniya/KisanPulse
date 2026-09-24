@@ -4,15 +4,18 @@ from dotenv import load_dotenv
 load_dotenv()
 
 SERPAPI_API_KEY = os.getenv("SERPAPI_API_KEY", "")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+# Supabase Settings
+SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 
 if GEMINI_API_KEY:
     os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY
 if GROQ_API_KEY:
     os.environ["GROQ_API_KEY"] = GROQ_API_KEY
 
-# Distress pivot crop categorization
 CROP_CATEGORIES = {
     "CULINARY_BULK": [
         "ginger", "adrak", "garlic", "lahsun", "chilli", "mirchi",

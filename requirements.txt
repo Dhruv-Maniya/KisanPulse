@@ -1,0 +1,10 @@
+﻿fastapi
+uvicorn
+pydantic
+crewai
+crewai-tools
+serpapi-search-tools
+google-search-results
+python-dotenv
+requests
+gTTS

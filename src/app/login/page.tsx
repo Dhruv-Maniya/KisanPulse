@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { ArrowRight, Check, Lock, Phone, RefreshCw, ShieldCheck, Sprout, UserCheck, Wheat } from 'lucide-react'
+import { ArrowRight, Check, Lock, Phone, RefreshCw, ShieldCheck, Sprout, UserCheck, Wheat, Building2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -14,54 +14,62 @@ type Mode = 'otp' | 'trader'
 
 const copy = {
   en: {
-    welcome: 'Welcome back to smarter farming',
-    subtitle: 'Sign in to unlock verified mandi intelligence and real-time arbitrage.',
+    welcomeFarmer: 'Welcome back to smarter farming',
+    subtitleFarmer: 'Sign in to unlock verified mandi intelligence, real-time arbitrage, and AI negotiation scripts.',
+    welcomeTrader: 'Welcome to KisanPulse Buyer Portal',
+    subtitleTrader: 'Access live farm-gate harvest listings with verified APMC modal benchmarks and transparent supply signals.',
     cardTitleOtp: 'Farmer Sign In',
     cardDescOtp: 'Enter your 10-digit mobile number to receive an instant OTP.',
     cardTitleTrader: 'Market Buyer Access',
-    cardDescTrader: 'Sign in with your trader credentials or license number.',
+    cardDescTrader: 'Sign in with your trader credentials or APMC license number.',
     phone: 'Mobile number',
     send: 'Send OTP',
     otpTitle: 'Enter the 6-digit OTP',
     otpHint: 'Demo OTP: 123456',
-    verify: 'Verify & Open Mandi Dashboard',
+    verify: 'Verify & Open Farmer Dashboard',
     resend: 'Resend OTP',
-    email: 'Email or License ID',
+    email: 'Email or APMC License ID',
     password: 'Password',
     remember: 'Remember this device',
     trader: 'Sign In as Market Buyer',
-    guest: 'Explore as Guest Farmer',
-    guestHint: 'No login needed for the live demo.',
+    guestFarmer: 'Explore as Guest Farmer',
+    guestTrader: 'Explore as Guest Trader / Buyer',
+    guestHint: 'Instant one-click access without phone/password.',
     invalidPhone: 'Enter a valid 10-digit mobile number.',
     invalidOtp: 'That OTP is incorrect. Try 123456 for the demo.',
     verified: 'Verified! Opening your dashboard…',
   },
   hi: {
-    welcome: 'स्मार्ट खेती में आपका स्वागत है',
-    subtitle: 'सत्यापित मंडी जानकारी और रीयल-टाइम आर्बिट्रेज पाने के लिए लॉगिन करें।',
+    welcomeFarmer: 'स्मार्ट खेती में आपका स्वागत है',
+    subtitleFarmer: 'सत्यापित मंडी जानकारी, रीयल-टाइम आर्बिट्रेज और AI बातचीत स्क्रिप्ट पाने के लिए लॉगिन करें।',
+    welcomeTrader: 'किसानपल्स खरीदार पोर्टल में स्वागत है',
+    subtitleTrader: 'सत्यापित APMC दरों के साथ किसानों से सीधे खरीद और पारदर्शी आपूर्ति प्राप्त करें।',
     cardTitleOtp: 'किसान लॉगिन',
     cardDescOtp: 'तत्काल ओटीपी प्राप्त करने के लिए अपना 10 अंकों का मोबाइल नंबर दर्ज करें।',
     cardTitleTrader: 'मार्केट खरीदार पहुंच',
-    cardDescTrader: 'अपने व्यापारी क्रेडेंशियल या लाइसेंस नंबर से लॉगिन करें।',
+    cardDescTrader: 'अपने व्यापारी क्रेडेंशियल या मंडी लाइसेंस नंबर से लॉगिन करें।',
     phone: 'मोबाइल नंबर',
     send: 'ओटीपी भेजें',
     otpTitle: '6 अंकों का ओटीपी दर्ज करें',
     otpHint: 'डेमो ओटीपी: 123456',
-    verify: 'सत्यापित करें और मंडी डैशबोर्ड खोलें',
+    verify: 'सत्यापित करें और किसान डैशबोर्ड खोलें',
     resend: 'ओटीपी फिर भेजें',
-    email: 'ईमेल या लाइसेंस आईडी',
+    email: 'ईमेल या मंडी लाइसेंस आईडी',
     password: 'पासवर्ड',
     remember: 'इस डिवाइस को याद रखें',
     trader: 'मार्केट खरीदार के रूप में लॉगिन',
-    guest: 'बिना लॉगिन सीधे डेमो देखें',
-    guestHint: 'लाइव डेमो के लिए लॉगिन की जरूरत नहीं।',
+    guestFarmer: 'बिना लॉगिन सीधे किसान डेमो देखें',
+    guestTrader: 'बिना लॉगिन सीधे व्यापारी पोर्टल देखें',
+    guestHint: 'डेमो के लिए किसी लॉगिन की आवश्यकता नहीं है।',
     invalidPhone: '10 अंकों का सही मोबाइल नंबर दर्ज करें।',
     invalidOtp: 'ओटीपी गलत है। डेमो के लिए 123456 डालें।',
     verified: 'सत्यापित! आपका डैशबोर्ड खुल रहा है…',
   },
   mr: {
-    welcome: 'स्मार्ट शेतीमध्ये आपले स्वागत आहे',
-    subtitle: 'सत्यापित बाजार माहिती आणि थेट बाजारभाव मिळवण्यासाठी लॉगिन करा.',
+    welcomeFarmer: 'स्मार्ट शेतीमध्ये आपले स्वागत आहे',
+    subtitleFarmer: 'सत्यापित बाजार माहिती, थेट बाजारभाव आणि AI सल्ला मिळवण्यासाठी लॉगिन करा.',
+    welcomeTrader: 'किसानपल्स खरेदीदार पोर्टलमध्ये आपले स्वागत आहे',
+    subtitleTrader: 'अधिकृत बाजारभावासह थेट शेतकरी खरेदी आणि पारदर्शक पुरवठा माहिती मिळवा.',
     cardTitleOtp: 'शेतकरी लॉगिन',
     cardDescOtp: 'त्वरित ओटीपी मिळविण्यासाठी आपला 10 अंकी मोबाइल नंबर टाका.',
     cardTitleTrader: 'मार्केट खरेदीदार प्रवेश',
@@ -70,13 +78,14 @@ const copy = {
     send: 'ओटीपी पाठवा',
     otpTitle: '6 अंकी ओटीपी टाका',
     otpHint: 'डेमो ओटीपी: 123456',
-    verify: 'सत्यापित करा आणि बाजार डॅशबोर्ड उघडा',
+    verify: 'सत्यापित करा आणि शेतकरी डॅशबोर्ड उघडा',
     resend: 'ओटीपी पुन्हा पाठवा',
     email: 'ईमेल किंवा परवाना आयडी',
     password: 'पासवर्ड',
     remember: 'हे डिव्हाइस लक्षात ठेवा',
     trader: 'मार्केट खरेदीदार म्हणून लॉगिन',
-    guest: 'लॉगिनशिवाय डेमो पहा',
+    guestFarmer: 'लॉगिनशिवाय शेतकरी डेमो पहा',
+    guestTrader: 'लॉगिनशिवाय व्यापारी पोर्टल पहा',
     guestHint: 'लाइव्ह डेमोसाठी लॉगिनची गरज नाही.',
     invalidPhone: '10 अंकी योग्य मोबाइल नंबर टाका.',
     invalidOtp: 'ओटीपी चुकीचा आहे. डेमोसाठी 123456 टाका.',
@@ -92,7 +101,23 @@ export default function LoginPage() {
   const [sent, setSent] = useState(false)
   const [error, setError] = useState('')
   const [verified, setVerified] = useState(false)
+  const [traderEmail, setTraderEmail] = useState('trader@sahyadriagro.com')
+  const [traderPassword, setTraderPassword] = useState('••••••••')
   const t = copy[language]
+
+  const enterAsFarmer = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('kisan_role', 'farmer')
+      window.location.href = '/farmer'
+    }
+  }
+
+  const enterAsTrader = () => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('kisan_role', 'trader')
+      window.location.href = '/trader'
+    }
+  }
 
   const sendOtp = () => {
     if (!/^\d{10}$/.test(phone)) return setError(t.invalidPhone)
@@ -112,8 +137,16 @@ export default function LoginPage() {
     setError('')
     setVerified(true)
     window.setTimeout(() => {
-      window.location.href = '/'
-    }, 700)
+      enterAsFarmer()
+    }, 600)
+  }
+
+  const handleTraderSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setVerified(true)
+    window.setTimeout(() => {
+      enterAsTrader()
+    }, 600)
   }
 
   return (
@@ -121,7 +154,7 @@ export default function LoginPage() {
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 border-b border-[#dce8da] bg-white/95 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-3 group" aria-label="KisanPulse home">
+          <Link href="/login" className="flex items-center gap-3 group" aria-label="KisanPulse home">
             <div className="relative grid size-10 place-items-center rounded-xl bg-[#1b4d1e] text-white shadow-[0_4px_14px_rgba(27,77,30,0.25)] transition group-hover:scale-105">
               <Wheat className="size-5.5" />
               <span className="absolute -right-1 -top-1 size-2.5 rounded-full border-2 border-white bg-[#f59e0b]" />
@@ -131,7 +164,7 @@ export default function LoginPage() {
                 Kisan<span className="text-[#f59e0b]">Pulse</span>
               </div>
               <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 mt-1">
-                Farmer intelligence network
+                Farmer & Buyer Intelligence Network
               </div>
             </div>
           </Link>
@@ -165,32 +198,56 @@ export default function LoginPage() {
             {/* Left Hero Column */}
             <section className="hidden lg:flex lg:col-span-6 xl:col-span-7 flex-col justify-center">
               <div className="mb-4 inline-flex w-fit items-center gap-2 rounded-full bg-[#eaf4e9] px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-[#2e7d32] border border-[#cce4cb]">
-                <Sprout className="size-4" /> Built for Bharat&apos;s farmers
+                {mode === 'otp' ? (
+                  <>
+                    <Sprout className="size-4" /> Built for Bharat&apos;s farmers
+                  </>
+                ) : (
+                  <>
+                    <Building2 className="size-4" /> Direct Agribusiness Procurement
+                  </>
+                )}
               </div>
               <h1 className="max-w-xl text-4xl xl:text-5xl font-black leading-[1.12] tracking-tight text-[#183b1d]">
-                {t.welcome}
+                {mode === 'otp' ? t.welcomeFarmer : t.welcomeTrader}
               </h1>
               <p className="mt-4 max-w-lg text-lg leading-relaxed text-slate-600">
-                {t.subtitle}
+                {mode === 'otp' ? t.subtitleFarmer : t.subtitleTrader}
               </p>
 
               {/* Value Proposition Cards */}
               <div className="mt-8 grid max-w-lg gap-3">
-                {[
-                  { title: '100% Free for Indian Farmers', sub: 'Zero subscription, zero agent commission' },
-                  { title: 'Real-Time APMC Mandi Rates', sub: 'Direct live feeds with true transport net yield' },
-                  { title: 'Autonomous Bluff Detector', sub: 'Instant verification of trader claims before sale' },
-                ].map((item) => (
-                  <div key={item.title} className="flex items-start gap-3.5 rounded-xl border border-[#dce8da] bg-white/70 p-3.5 backdrop-blur-xs shadow-xs">
-                    <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#eaf4e9] text-[#2e7d32]">
-                      <Check className="size-4" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold text-[#1b4d1e] leading-snug">{item.title}</div>
-                      <div className="text-xs text-slate-500 mt-0.5">{item.sub}</div>
-                    </div>
-                  </div>
-                ))}
+                {mode === 'otp'
+                  ? [
+                      { title: '100% Free for Indian Farmers', sub: 'Zero subscription, zero agent commission' },
+                      { title: 'Real-Time APMC Mandi Rates', sub: 'Direct live feeds with true transport net yield' },
+                      { title: 'Autonomous Bluff Detector', sub: 'Instant verification of trader claims before sale' },
+                    ].map((item) => (
+                      <div key={item.title} className="flex items-start gap-3.5 rounded-xl border border-[#dce8da] bg-white/70 p-3.5 backdrop-blur-xs shadow-xs">
+                        <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#eaf4e9] text-[#2e7d32]">
+                          <Check className="size-4" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-[#1b4d1e] leading-snug">{item.title}</div>
+                          <div className="text-xs text-slate-500 mt-0.5">{item.sub}</div>
+                        </div>
+                      </div>
+                    ))
+                  : [
+                      { title: 'Direct Farm-Gate Access', sub: 'Verified crop lots across 12 APMC districts' },
+                      { title: 'SerpApi Market Radar', sub: 'Fair wholesale benchmarks with 7-day rate trends' },
+                      { title: 'Distress Salvage Off-Take', sub: 'Instant routing for processing plants & cold storage' },
+                    ].map((item) => (
+                      <div key={item.title} className="flex items-start gap-3.5 rounded-xl border border-[#dce8da] bg-white/70 p-3.5 backdrop-blur-xs shadow-xs">
+                        <div className="grid size-7 shrink-0 place-items-center rounded-lg bg-[#eaf4e9] text-[#2e7d32]">
+                          <Check className="size-4" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-bold text-[#1b4d1e] leading-snug">{item.title}</div>
+                          <div className="text-xs text-slate-500 mt-0.5">{item.sub}</div>
+                        </div>
+                      </div>
+                    ))}
               </div>
             </section>
 
@@ -206,11 +263,12 @@ export default function LoginPage() {
                         setError('')
                       }}
                       className={cn(
-                        'h-10 rounded-lg text-xs font-bold transition-all',
+                        'h-10 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5',
                         mode === 'otp' ? 'bg-white text-[#1b4d1e] shadow-sm' : 'text-slate-500 hover:text-slate-800'
                       )}
                     >
-                      Mobile OTP
+                      <Sprout className="size-3.5" />
+                      Farmer / Seller
                     </button>
                     <button
                       onClick={() => {
@@ -218,11 +276,12 @@ export default function LoginPage() {
                         setError('')
                       }}
                       className={cn(
-                        'h-10 rounded-lg text-xs font-bold transition-all',
+                        'h-10 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5',
                         mode === 'trader' ? 'bg-white text-[#1b4d1e] shadow-sm' : 'text-slate-500 hover:text-slate-800'
                       )}
                     >
-                      Agribusiness / Trader
+                      <Building2 className="size-3.5" />
+                      Trader / Buyer
                     </button>
                   </div>
 
@@ -316,13 +375,15 @@ export default function LoginPage() {
                       )}
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-4">
+                    <form onSubmit={handleTraderSubmit} className="flex flex-col gap-4">
                       <div>
                         <Label htmlFor="email" className="text-xs font-bold text-slate-700">
                           {t.email}
                         </Label>
                         <Input
                           id="email"
+                          value={traderEmail}
+                          onChange={(e) => setTraderEmail(e.target.value)}
                           className="mt-1.5 h-12 rounded-xl border-[#dce8da] bg-[#fbfdfb]"
                           placeholder="trader@mandi.gov.in"
                         />
@@ -336,20 +397,25 @@ export default function LoginPage() {
                           <Input
                             id="password"
                             type="password"
+                            value={traderPassword}
+                            onChange={(e) => setTraderPassword(e.target.value)}
                             className="h-12 rounded-xl border-[#dce8da] bg-[#fbfdfb] pl-10"
                             placeholder="••••••••"
                           />
                         </div>
                       </div>
                       <label className="flex items-center gap-2 text-xs font-medium text-slate-600 select-none cursor-pointer">
-                        <input type="checkbox" className="size-4 rounded accent-[#2e7d32]" />
+                        <input type="checkbox" defaultChecked className="size-4 rounded accent-[#2e7d32]" />
                         {t.remember}
                       </label>
-                      <Button className="h-12 w-full rounded-xl bg-[#2e7d32] text-sm font-bold text-white shadow-sm hover:bg-[#1b4d1e] transition-all flex items-center justify-center gap-2">
+                      <Button
+                        type="submit"
+                        className="h-12 w-full rounded-xl bg-[#1b4d1e] text-sm font-bold text-white shadow-sm hover:bg-[#256628] transition-all flex items-center justify-center gap-2"
+                      >
                         <UserCheck className="size-4" />
-                        {t.trader}
+                        {verified ? 'Opening Buyer Portal…' : t.trader}
                       </Button>
-                    </div>
+                    </form>
                   )}
 
                   {error && (
@@ -360,16 +426,27 @@ export default function LoginPage() {
 
                   <div className="my-5 flex items-center gap-3 text-[11px] font-bold uppercase tracking-wider text-slate-400">
                     <div className="h-px flex-1 bg-[#e5ebe3]" />
-                    or
+                    or instant demo
                     <div className="h-px flex-1 bg-[#e5ebe3]" />
                   </div>
 
-                  <Link
-                    href="/"
-                    className="flex h-12 w-full items-center justify-center rounded-xl border border-[#dce8da] bg-[#fff8e8] px-4 text-center text-xs font-bold text-[#8f5c0a] transition hover:bg-[#fff2d0] shadow-xs"
-                  >
-                    {t.guest}
-                  </Link>
+                  {mode === 'otp' ? (
+                    <button
+                      type="button"
+                      onClick={enterAsFarmer}
+                      className="flex h-12 w-full items-center justify-center rounded-xl border border-[#dce8da] bg-[#fff8e8] px-4 text-center text-xs font-bold text-[#8f5c0a] transition hover:bg-[#fff2d0] shadow-xs"
+                    >
+                      {t.guestFarmer}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={enterAsTrader}
+                      className="flex h-12 w-full items-center justify-center rounded-xl border border-[#dce8da] bg-[#eef7ec] px-4 text-center text-xs font-bold text-[#1b4d1e] transition hover:bg-[#dff0dc] shadow-xs"
+                    >
+                      {t.guestTrader}
+                    </button>
+                  )}
                   <p className="mt-2 text-center text-[11px] font-medium text-slate-400">
                     {t.guestHint}
                   </p>
@@ -385,9 +462,11 @@ export default function LoginPage() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-4 text-center text-xs text-slate-500 sm:flex-row sm:px-6 lg:px-8">
           <p>KisanPulse gives you verified signals — the final decision stays with you.</p>
           <div className="flex items-center gap-4 text-slate-400">
-            <span>100% Free for Farmers</span>
+            <span>Direct Farmer KYC</span>
             <span>•</span>
-            <span>Real-Time APMC Mandi Rates</span>
+            <span>Agmarknet Verified APMC Rates</span>
+            <span>•</span>
+            <span>Zero Middleman Surcharge</span>
           </div>
         </div>
       </footer>

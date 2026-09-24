@@ -16,8 +16,10 @@ import { fetchAnalysis, fetchSpeechAudio } from '@/lib/api'
 import {
   AlertTriangle,
   ArrowRight,
+  Building2,
   Check,
   CircleHelp,
+  LogOut,
   MapPin,
   Phone,
   Search,
@@ -318,12 +320,29 @@ export default function KisanPulseDashboard() {
             <div className="hidden md:flex items-center gap-1.5 rounded-full bg-[#fff4da] px-3.5 py-1.5 text-xs font-semibold text-[#a26100] border border-[#f5e3b5]">
               <Zap className="size-3.5" /> Autonomous Agent
             </div>
+            {/* Switch to Buyer Portal */}
             <Link
-              href="/login"
-              className="inline-flex h-9 items-center rounded-full bg-[#1b4d1e] px-4 text-xs font-bold text-white transition hover:bg-[#256628] shadow-sm"
+              href="/trader"
+              className="inline-flex h-9 items-center gap-1.5 rounded-full border border-[#74ae76] bg-[#eef7ec] px-3.5 text-xs font-bold text-[#1b4d1e] hover:bg-[#dff0dc] transition-all shadow-xs"
+              title="Switch to Agribusiness Buyer Portal"
             >
-              Login
+              <Building2 className="size-3.5 text-[#2e7d32]" />
+              <span className="hidden sm:inline">Buyer Portal</span>
             </Link>
+
+            {/* Logout */}
+            <button
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('kisan_role')
+                  window.location.href = '/login'
+                }
+              }}
+              className="grid size-9 place-items-center rounded-full border border-[#dce8da] bg-white text-slate-500 hover:text-red-600 hover:border-red-200 transition-all"
+              title="Sign Out"
+            >
+              <LogOut className="size-4" />
+            </button>
             <div className="flex items-center rounded-full border border-[#dce8da] bg-[#f8fbf7] p-0.5" aria-label="Select language">
               {(['en', 'hi', 'mr'] as Lang[]).map((item) => (
                 <button

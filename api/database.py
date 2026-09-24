@@ -96,3 +96,134 @@ def get_farmer_history(phone: str, limit: int = 5) -> list[dict]:
     except Exception as e:
         print(f"[Supabase Error] get_farmer_history: {e}")
         return []
+
+# --- BUYER & MARKETPLACE FUNCTIONS ---
+
+def get_or_create_buyer(phone: str, company_name: str = "Agro Procurement Partner", gst_number: str = "") -> dict:
+    """Registers a new buyer or fetches an existing one."""
+    if not supabase:
+        return {"phone": phone, "company_name": company_name, "gst_number": gst_number}
+    try:
+        clean_phone = phone or "9876543210"
+        res = supabase.table("buyers").select("*").eq("phone", clean_phone).execute()
+        if res.data and len(res.data) > 0:
+            return res.data[0]
+        
+        insert_res = supabase.table("buyers").insert({
+            "phone": clean_phone,
+            "company_name": company_name or "Agro Procurement Partner",
+            "gst_number": gst_number or "27AAACS0000A1Z5"
+        }).execute()
+        return insert_res.data[0] if insert_res.data else {}
+    except Exception as e:
+        print(f"[Supabase Error] get_or_create_buyer: {e}")
+        return {"phone": phone, "company_name": company_name, "gst_number": gst_number}
+
+def create_crop_listing(farmer_phone: str, crop: str, district: str, quantity: float, expected_price: float, is_distress: bool = False) -> str | None:
+    """Creates a new public crop listing for buyers to see, ensuring farmer foreign key exists."""
+    if not supabase:
+        return None
+    try:
+        clean_phone = farmer_phone or "guest"
+        # Ensure farmer exists in farmers table to satisfy foreign key constraint
+        get_or_create_farmer(clean_phone, district=district or "Nashik")
+
+        res = supabase.table("crop_listings").insert({
+            "farmer_phone": clean_phone,
+            "crop": crop,
+            "district": district or "Nashik",
+            "quantity_quintals": float(quantity),
+            "expected_price_per_kg": float(expected_price),
+            "is_distress": bool(is_distress),
+            "status": "ACTIVE"
+        }).execute()
+        return res.data[0]["id"] if res.data else None
+    except Exception as e:
+        print(f"[Supabase Error] create_crop_listing: {e}")
+        return None
+
+def get_active_listings(district: str = None) -> list[dict]:
+    """Fetches all active listings for the buyer feed; seeds initial lots if table is empty."""
+    if not supabase:
+        return []
+    try:
+        query = supabase.table("crop_listings").select("*").eq("status", "ACTIVE")
+        if district:
+            query = query.eq("district", district)
+        res = query.order("created_at", desc=True).execute()
+        listings = res.data or []
+
+        # If database has no listings yet, seed initial realistic lots so buyers have real items to bid on
+        if len(listings) == 0 and not district:
+            seed_lots = [
+                {"farmer_phone": "9876543210", "crop": "Tomato", "district": "Nashik", "quantity_quintals": 40.0, "expected_price_per_kg": 18.0, "is_distress": False},
+                {"farmer_phone": "9876543210", "crop": "Onion", "district": "Nashik", "quantity_quintals": 60.0, "expected_price_per_kg": 14.0, "is_distress": True},
+                {"farmer_phone": "9876543210", "crop": "Ginger", "district": "Satara", "quantity_quintals": 25.0, "expected_price_per_kg": 42.5, "is_distress": False},
+                {"farmer_phone": "9876543210", "crop": "Potato", "district": "Pune", "quantity_quintals": 80.0, "expected_price_per_kg": 12.8, "is_distress": False},
+            ]
+            get_or_create_farmer("9876543210", district="Nashik")
+            for lot in seed_lots:
+                try:
+                    supabase.table("crop_listings").insert(lot).execute()
+                except Exception:
+                    pass
+            # Re-fetch seeded listings
+            res_after = supabase.table("crop_listings").select("*").eq("status", "ACTIVE").order("created_at", desc=True).execute()
+            listings = res_after.data or []
+
+        return listings
+    except Exception as e:
+        print(f"[Supabase Error] get_active_listings: {e}")
+        return []
+
+def place_buyer_offer(listing_id: str, buyer_phone: str, offer_price: float) -> dict:
+    """Records a buyer's bid on a specific crop listing with foreign key protection."""
+    if not supabase:
+        return {}
+    try:
+        clean_phone = buyer_phone or "9876543210"
+        # Ensure buyer profile exists in buyers table
+        get_or_create_buyer(clean_phone, company_name="Sahyadri Agro Processing Ltd")
+
+        # Validate that listing_id is a UUID; if client passed a string code (e.g. LOT-4029), link to a valid active listing
+        import uuid
+        target_listing_id = listing_id
+        is_valid_uuid = False
+        try:
+            uuid.UUID(str(listing_id))
+            is_valid_uuid = True
+        except (ValueError, TypeError, AttributeError):
+            is_valid_uuid = False
+
+        if not is_valid_uuid:
+            # Fall back to an existing active listing or create one
+            active = get_active_listings()
+            if active and len(active) > 0:
+                target_listing_id = active[0]["id"]
+            else:
+                target_listing_id = create_crop_listing("guest", "Tomato", "Nashik", 40.0, float(offer_price))
+
+        res = supabase.table("buyer_offers").insert({
+            "listing_id": target_listing_id,
+            "buyer_phone": clean_phone,
+            "offer_price_per_kg": float(offer_price),
+            "status": "PENDING"
+        }).execute()
+        return res.data[0] if res.data else {}
+    except Exception as e:
+        print(f"[Supabase Error] place_buyer_offer: {e}")
+        return {}
+
+def get_buyer_offers(buyer_phone: str = None) -> list[dict]:
+    """Retrieves all submitted buyer bids and contract statuses from Supabase."""
+    if not supabase:
+        return []
+    try:
+        query = supabase.table("buyer_offers").select("*, crop_listings(crop, district, quantity_quintals, expected_price_per_kg)")
+        if buyer_phone:
+            query = query.eq("buyer_phone", buyer_phone)
+        res = query.order("created_at", desc=True).execute()
+        return res.data or []
+    except Exception as e:
+        print(f"[Supabase Error] get_buyer_offers: {e}")
+        return []

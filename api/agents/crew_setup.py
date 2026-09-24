@@ -86,15 +86,58 @@ def run_kisanpulse_pipeline(
         )
         tasks.append(task_bluff)
 
-    crew = Crew(
-        agents=[arbitrage_agent, bluff_agent] if buyer_claim else [arbitrage_agent],
-        tasks=tasks,
-        process=Process.sequential,
-        verbose=True,
-        cache=False
-    )
+    arbitrage_verdict_str = ""
+    counter_script_str = ""
 
-    crew_result = crew.kickoff()
+    try:
+        crew = Crew(
+            agents=[arbitrage_agent, bluff_agent] if buyer_claim else [arbitrage_agent],
+            tasks=tasks,
+            process=Process.sequential,
+            verbose=False,
+            cache=False
+        )
+        crew_result = crew.kickoff()
+        if hasattr(task_arbitrage, "output") and task_arbitrage.output:
+            arbitrage_verdict_str = str(task_arbitrage.output)
+        else:
+            arbitrage_verdict_str = str(crew_result)
+
+        if buyer_claim and hasattr(task_bluff, "output") and task_bluff.output:
+            counter_script_str = str(task_bluff.output)
+    except Exception as llm_err:
+        print(f"[CrewAI / LLM Warning] AI synthesis encountered an issue ({llm_err}). Falling back to deterministic mathematical synthesis.")
+        diff = market_b_math["net_take_home"] - market_a_math["net_take_home"]
+        if diff > 0:
+            arbitrage_verdict_str = (
+                f"Recommend selling at Regional Hub APMC (48 km) for an estimated net take-home of ₹{market_b_math['net_take_home']:,.0f}. "
+                f"Even after paying ₹{market_b_math['transit_cost']:,.0f} in transport & fuel (diesel at ₹{diesel_rate}/L), "
+                f"you earn ₹{diff:,.0f} more than selling locally at {district} APMC."
+            )
+        else:
+            arbitrage_verdict_str = (
+                f"Recommend selling at {district} APMC (Near, 12 km) for a net take-home of ₹{market_a_math['net_take_home']:,.0f}. "
+                f"Higher transport costs to the regional hub would erode your margin by ₹{abs(diff):,.0f}."
+            )
+
+        if buyer_claim:
+            margin_gap = bluff_data.get("margin_gap_pct", 0.0)
+            target_kg = (modal_price_qtl * 0.95) / 100
+            if language == "hi":
+                counter_script_str = (
+                    f"आज़ादपुर और क्षेत्रीय मंडी में {crop} का थोक भाव ₹{modal_price_qtl/100:.1f}/किग्रा चल रहा है। "
+                    f"आपका ₹{buyer_quote_kg}/किग्रा का भाव बाज़ार से {margin_gap}% कम है, हम कम से कम ₹{target_kg:.1f}/किग्रा से कम नहीं बेचेंगे।"
+                )
+            elif language == "mr":
+                counter_script_str = (
+                    f"बाजार समितीमध्ये {crop} चा अधिकृत दर ₹{modal_price_qtl/100:.1f}/किलो आहे. "
+                    f"तुमचा ₹{buyer_quote_kg}/किलो दर {margin_gap}% कमी आहे, आम्ही किमान ₹{target_kg:.1f}/किलो खाली माल देणार नाही."
+                )
+            else:
+                counter_script_str = (
+                    f"Verified terminal market rate for {crop} is ₹{modal_price_qtl/100:.1f}/kg. "
+                    f"Your offer of ₹{buyer_quote_kg}/kg is undercut by {margin_gap}%. We cannot sell below ₹{target_kg:.1f}/kg."
+                )
 
     return {
         "crop": crop,
@@ -106,12 +149,13 @@ def run_kisanpulse_pipeline(
             {"name": f"{district} APMC (Near)", "distance_km": 12.0, "net_take_home": market_a_math["net_take_home"], "price_qtl": market_a_math["quoted_price_per_qtl"]},
             {"name": "Regional Hub APMC", "distance_km": 48.0, "net_take_home": market_b_math["net_take_home"], "price_qtl": market_b_math["quoted_price_per_qtl"]}
         ],
-        "arbitrage_verdict": str(task_arbitrage.output) if hasattr(task_arbitrage, "output") else str(crew_result),
+        "arbitrage_verdict": arbitrage_verdict_str,
         "bluff_analysis": {
             "claim": buyer_claim,
+            "buyer_offered_kg": buyer_quote_kg,
             "bluff_score": bluff_data.get("bluff_score", "LOW"),
             "margin_gap_pct": bluff_data.get("margin_gap_pct", 0.0),
-            "counter_script": str(task_bluff.output) if buyer_claim and hasattr(task_bluff, "output") else ""
+            "counter_script": counter_script_str
         } if buyer_claim else None,
         "distress_contacts": salvage_buyers
     }

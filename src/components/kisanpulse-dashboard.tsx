@@ -212,6 +212,11 @@ export default function KisanPulseDashboard() {
   const analyze = async () => {
     setAnalyzing(true)
     try {
+      const storedPhone =
+        typeof window !== 'undefined'
+          ? localStorage.getItem('kisan_phone') || 'guest'
+          : 'guest'
+
       const data = await fetchAnalysis({
         crop: form.crop,
         district: form.district,
@@ -219,6 +224,7 @@ export default function KisanPulseDashboard() {
         buyer_claim: form.claim,
         buyer_quote_per_kg: Number(form.quote) || 0,
         language: lang,
+        farmer_phone: storedPhone,
       })
 
       if (data && typeof data === 'object') {

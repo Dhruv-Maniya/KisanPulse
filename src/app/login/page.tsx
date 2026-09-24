@@ -105,9 +105,11 @@ export default function LoginPage() {
   const [traderPassword, setTraderPassword] = useState('••••••••')
   const t = copy[language]
 
-  const enterAsFarmer = () => {
+  const enterAsFarmer = (userPhone?: string | React.MouseEvent) => {
     if (typeof window !== 'undefined') {
       localStorage.setItem('kisan_role', 'farmer')
+      const finalPhone = typeof userPhone === 'string' ? userPhone : (phone || 'guest')
+      localStorage.setItem('kisan_phone', finalPhone)
       window.location.href = '/farmer'
     }
   }
@@ -123,6 +125,12 @@ export default function LoginPage() {
     if (!/^\d{10}$/.test(phone)) return setError(t.invalidPhone)
     setError('')
     setSent(true)
+    // Register farmer profile in Supabase
+    fetch('/api/auth/otp/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone, district: '', language }),
+    }).catch(() => {})
   }
 
   const updateOtp = (index: number, value: string) => {
@@ -137,7 +145,7 @@ export default function LoginPage() {
     setError('')
     setVerified(true)
     window.setTimeout(() => {
-      enterAsFarmer()
+      enterAsFarmer(phone)
     }, 600)
   }
 

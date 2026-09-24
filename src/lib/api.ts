@@ -66,3 +66,66 @@ export async function fetchSpeechAudio(text: string, language = "hi") {
   const audioBlob = await response.blob();
   return URL.createObjectURL(audioBlob);
 }
+
+export async function fetchMarketplaceFeed(district?: string) {
+  const url = district
+    ? `http://localhost:8000/api/marketplace/feed?district=${encodeURIComponent(district)}`
+    : `http://localhost:8000/api/marketplace/feed`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to fetch feed");
+  return response.json();
+}
+
+export async function submitBuyerOffer(listingId: string, buyerPhone: string, offerPrice: number) {
+  const response = await fetch("http://localhost:8000/api/marketplace/offer", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      listing_id: listingId,
+      buyer_phone: buyerPhone,
+      offer_price_per_kg: offerPrice,
+    }),
+  });
+  if (!response.ok) throw new Error("Failed to submit offer");
+  return response.json();
+}
+
+export async function registerBuyerApi(phone: string, companyName: string, gstNumber = "") {
+  const response = await fetch("http://localhost:8000/api/buyer/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      phone,
+      company_name: companyName,
+      gst_number: gstNumber,
+    }),
+  });
+  if (!response.ok) throw new Error("Failed to register buyer");
+  return response.json();
+}
+
+export async function createCropListingApi(data: {
+  farmer_phone: string;
+  crop: string;
+  district: string;
+  quantity_quintals: number;
+  expected_price_per_kg: number;
+  is_distress?: boolean;
+}) {
+  const response = await fetch("http://localhost:8000/api/marketplace/list", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error("Failed to create crop listing");
+  return response.json();
+}
+
+export async function fetchBuyerOffersApi(phone?: string) {
+  const url = phone
+    ? `http://localhost:8000/api/marketplace/offers?phone=${encodeURIComponent(phone)}`
+    : `http://localhost:8000/api/marketplace/offers`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error("Failed to fetch offers");
+  return response.json();
+}

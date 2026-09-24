@@ -1,5 +1,13 @@
 import os
+import sys
 from api.config import GEMINI_API_KEY, GROQ_API_KEY
+
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
 os.environ.setdefault("GEMINI_API_KEY", GEMINI_API_KEY)
 os.environ.setdefault("GROQ_API_KEY", GROQ_API_KEY)
@@ -24,7 +32,7 @@ def get_llm_for_provider(provider: str | None = None):
         if not GEMINI_API_KEY:
             raise ValueError("GEMINI_API_KEY is missing. Add it to your .env file or environment.")
         return LLM(
-            model="gemini/gemini-3.6-flash",
+            model="gemini/gemini-3.5-flash-lite",
             api_key=GEMINI_API_KEY,
             temperature=0.2,
         )
